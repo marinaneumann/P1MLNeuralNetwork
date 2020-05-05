@@ -64,7 +64,7 @@ def build(X_train, Y_train, X_test, Y_test):
         mnnet.backprop()
         #Shuffle data before next epoch?
 
-        #NEED TO DO SOMETHING WITH ACCURACY counting or something???gi
+        #NEED TO DO SOMETHING WITH ACCURACY counting or something???
 
 class NN:
 
@@ -98,7 +98,7 @@ class NN:
         deltaK, deltaJ = errorcalc(deltaK, deltaJ)
         print("This is deltaK", deltaK)
         print("This is deltaJ", deltaJ)
-        #update weights
+        #update weights w/ momentum
         # deltaChangeK = (self.lr * delaK * self.hiddenL) + (self.mom * ???)
         # self.weightsKJ = self.weightsLJ + deltaChangeK
         #
