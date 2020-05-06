@@ -18,35 +18,31 @@ def main():
 #Data data --> MNISET
 def dataLoad():
     global X_train, Y_train,  X_test, Y_test
-    #Neet to still split data from inputs/labels for both test and training data
-    # X = np.genfromtxt("data/mnist_train.csv", delimiter=',', dtype=int )
-    # Y = np.loadtxt("data/mnist_test.csv", delimiter=',',dtype=int )
-    #
-    # trainX = X[:, 1:].reshape(X.shape[0], 1, 28, 28).astype('float32')
-    # X_train = trainX / 255.0
-    # Y_train = X[:,0]
-    #
-    # testX = Y[:, 1:].reshape(X.shape[0], 1, 28, 28).astype('float32')
-    # X_test = testX /255.0
-    # Y_test = Y[:,0]
-    # X, Y = loadlocal_mnist(
-    #     images_path='data/train-images-idx3-ubyte',
-    #     labels_path='data/train-labels-idx1-ubyte')
-    # np.savetxt(fname='data/testimages.csv',
-    #        X=X, delimiter=',', fmt='%d')
-    # np.savetxt(fname='data/testlabels.csv',
-    #        X=Y, delimiter=',', fmt='%d'
-    X = np.genfromtxt('data/testimages.csv', delimiter=',', dtype= float)
-    Y = np.loadtxt('data/testlabels.csv', delimiter=',', dtype=int)
 
-   # trainX = X.astype('float32')
+    # X_test, Y_test = loadlocal_mnist(images_path='data/t10k-images-idx3-ubyte',labels_path='data/t10k-labels-idx1-ubyte')
+    # np.savetxt(fname='data/testimages.csv',X=X_test, delimiter=',', fmt='%d')
+    # np.savetxt(fname='data/testlabels.csv', X=Y_test, delimiter=',', fmt='%d')
+    #
+    # X, Y = loadlocal_mnist(images_path='data/train-images-idx3-ubyte',
+    #                                  labels_path='data/train-labels-idx1-ubyte')
+    # np.savetxt(fname='data/trainimages.csv', X=X, delimiter=',', fmt='%d')
+    # np.savetxt(fname='data/trainlabels.csv', X=Y, delimiter=',', fmt='%d')
+
+    X = np.genfromtxt('data/trainimages.csv', delimiter=',', dtype= float)
+    Y = np.loadtxt('data/trainlabels.csv', delimiter=',', dtype=int)
+
     X_train = X / 255.0
     Y_train = Y
 
-    print("Data set for training", X_train[0])
-    print("Labels for training", Y_train[0])
-    print('Dimensions: %s x %s' % (X_train.shape[0], X_train.shape[1]))
+    #print("Data set for training", X_train[0])
+    #print("Labels for training", Y_train[0])
+    #print('Dimensions: %s x %s' % (X_train.shape[0], X_train.shape[1]))
 
+    M = np.genfromtxt('data/testimages.csv', delimiter=',', dtype=float)
+    N = np.loadtxt('data/testlabels.csv', delimiter=',', dtype=int)
+    X_test = M/255.0
+    Y_test = N
+    #print("Test data inputs", X_test[0])
 
 # Caluclate error
 def errorcalc(deltaK, deltaJ):
@@ -121,7 +117,6 @@ class NN:
         #
         # deltaChangeJ = (self.lr * deltaJ * self.inputs) +(self.mom *???)
         # self.weightsJI = self.weightsJI + deltaChangeJ
-
 
 
 
