@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from mlxtend.data import loadlocal_mnist
 from sklearn.model_selection import train_test_split
 # visualization tools
 import matplotlib.pyplot as plt
@@ -18,18 +19,34 @@ def main():
 def dataLoad():
     global X_train, Y_train,  X_test, Y_test
     #Neet to still split data from inputs/labels for both test and training data
-    X = np.genfromtxt("data/mnist_train.csv", delimiter=',', dtype=int )
-    Y = np.loadtxt("data/mnist_test.csv", delimiter=',',dtype=int )
+    # X = np.genfromtxt("data/mnist_train.csv", delimiter=',', dtype=int )
+    # Y = np.loadtxt("data/mnist_test.csv", delimiter=',',dtype=int )
+    #
+    # trainX = X[:, 1:].reshape(X.shape[0], 1, 28, 28).astype('float32')
+    # X_train = trainX / 255.0
+    # Y_train = X[:,0]
+    #
+    # testX = Y[:, 1:].reshape(X.shape[0], 1, 28, 28).astype('float32')
+    # X_test = testX /255.0
+    # Y_test = Y[:,0]
+    # X, Y = loadlocal_mnist(
+    #     images_path='data/train-images-idx3-ubyte',
+    #     labels_path='data/train-labels-idx1-ubyte')
+    # np.savetxt(fname='data/testimages.csv',
+    #        X=X, delimiter=',', fmt='%d')
+    # np.savetxt(fname='data/testlabels.csv',
+    #        X=Y, delimiter=',', fmt='%d'
+    X = np.genfromtxt('data/testimages.csv', delimiter=',', dtype= float)
+    Y = np.loadtxt('data/testlabels.csv', delimiter=',', dtype=int)
 
-    trainX = X[:, 1:].reshape(X.shape[0], 1, 28, 28).astype('float32')
-    X_train = trainX / 255.0
-    Y_train = X[:,0]
+   # trainX = X.astype('float32')
+    X_train = X / 255.0
+    Y_train = Y
 
-    testX = Y[:, 1:].reshape(X.shape[0], 1, 28, 28).astype('float32')
-    X_test = testX /255.0
-    Y_test = Y[:,0]
-    print("Data set for training", X_train)
-    print("Labels for training", Y_train)
+    print("Data set for training", X_train[0])
+    print("Labels for training", Y_train[0])
+    print('Dimensions: %s x %s' % (X_train.shape[0], X_train.shape[1]))
+
 
 # Caluclate error
 def errorcalc(deltaK, deltaJ):
@@ -109,3 +126,4 @@ class NN:
 
 
 
+main()
