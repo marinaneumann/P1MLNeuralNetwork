@@ -23,43 +23,19 @@ def dataLoad():
     # X_test, Y_test = loadlocal_mnist(images_path='data/t10k-images-idx3-ubyte',labels_path='data/t10k-labels-idx1-ubyte')
     # np.savetxt(fname='data/testimages.csv',X=X_test, delimiter=',', fmt='%d')
     # np.savetxt(fname='data/testlabels.csv', X=Y_test, delimiter=',', fmt='%d')
-    #
-    # X, Y = loadlocal_mnist(images_path='data/train-images-idx3-ubyte',
-    #                                  labels_path='data/train-labels-idx1-ubyte')
+    # X, Y = loadlocal_mnist(images_path='data/train-images-idx3-ubyte', labels_path='data/train-labels-idx1-ubyte')
     # np.savetxt(fname='data/trainimages.csv', X=X, delimiter=',', fmt='%d')
     # np.savetxt(fname='data/trainlabels.csv', X=Y, delimiter=',', fmt='%d')
 
     X = np.genfromtxt('data/trainimages.csv', delimiter=',', dtype= float)
     Y = np.loadtxt('data/trainlabels.csv', delimiter=',', dtype=int)
-
     X_train = X / 255.0
     Y_train = Y
-
-    #print("Data set for training", X_train[0])
-    #print("Labels for training", Y_train[0])
-    #print('Dimensions: %s x %s' % (X_train.shape[0], X_train.shape[1]))
 
     M = np.genfromtxt('data/testimages.csv', delimiter=',', dtype=float)
     N = np.loadtxt('data/testlabels.csv', delimiter=',', dtype=int)
     X_test = M/255.0
     Y_test = N
-    #print("Test data inputs", X_test[0])
-
-# Caluclate error
-def errorcalc(deltaK, deltaJ):
-    print('Hi')
-    tK = []
-    #Figures out tK values depending on if input class is kth class or not.. don't think this is right
-    for i in self.outputs:
-        if(outputs[i] == Y_train[i]):
-            tK = 0.9
-        else:
-            tK = 0.3
-
-    deltaK = outputs * (1- outputs)* (tK - outputs)
-    deltaJ = self.hiddenL * (1- hiddenL) * dot(weightsKJ, deltaK)
-
-    return deltaK, deltaJ
 
 def sigmAct(s):
    return 1/(1+np.exp(-s))
@@ -78,7 +54,7 @@ def build(X_train, Y_train, X_test, Y_test):
 
     #for z in range(epochs):
     mnnetTrain.propforward()
-        #mnnetTrain.backprop()5
+        #mnnetTrain.backprop()
 
         #Shuffle data before next epoch?
 
@@ -97,36 +73,50 @@ class NN:
         self.y = y  #labels from input for kth class
 
 
-        self.weightsJI = np.random.uniform(-0.5,0.5)
-        self.weightsKJ = np.random.uniform(-0.5,0.5)
-        self.bias1 =  np.ones(self.inputs)
-        self.bias2 = np.ones(self.numHidden)
+        self.weightsJI = np.random.uniform(-0.5,0.5, size =784)
+        self.weightsKJ = np.random.uniform(-0.5,0.5 ,size =50)
+        self.bias1 = np.ones(1)
+        self.bias2 = np.ones(1)
 
 # Propogate input forward
     def propforward(self) :
-        z, d = 0
-        #Need to change data set!!!
         z = np.dot(X_train, self.weightsJI) + self.bias1
-        self.hiddenL = signoid(z)
+        self.hiddenL = sigmAct(z)
         d = np.dot(self.hiddenL, self.weightsKJ) + self.bias2
-        self.outputs = sigmoid(d)
+        self.outputs = sigmAct(d)
         print("HiddenLayers: ", self.hiddenL)
         print("Outputs: ", self.outputs)
 
     def backprop(self):
-        print("hi")
         deltaK, deltaJ = 0
-        deltaK, deltaJ = errorcalc(deltaK, deltaJ)
+        deltaK, deltaJ = errorcalc(self,deltaK, deltaJ)
         print("This is deltaK", deltaK)
         print("This is deltaJ", deltaJ)
         #update weights w/ momentum
-        # deltaChangeK = (self.lr * delaK * self.hiddenL) + (self.mom * ???)
+        #deltaChangeK = np.zeros(785?)
+        #deltaChangeJ = np.zeros(785?)
+        #Start them as zero, and them update each time so they do delta recent...
+        # deltaChangeK = (self.lr * delaK * self.hiddenL) + (self.mom *??? )
         # self.weightsKJ = self.weightsLJ + deltaChangeK
         #
         # deltaChangeJ = (self.lr * deltaJ * self.inputs) +(self.mom *???)
         # self.weightsJI = self.weightsJI + deltaChangeJ
 
+# Caluclate error
+def errorcalc(self, deltaK, deltaJ):
+    global tK
+    tK= []
+    #Figures out tK values depending on if input class is kth class or not.. don't think this is right
+    for i in self.outputs:
+        if self.outputs[i] == Y_train[i]:
+            tK = 0.9
+        else:
+            tK = 0.3
 
+    deltaK = self.outputs * (1- self.outputs)* (tK - self.outputs)
+    deltaJ = self.hiddenL * (1- self.hiddenL) * np.dot(self.weightsKJ, deltaK)
+
+    return deltaK, deltaJ
 
 
 main()
