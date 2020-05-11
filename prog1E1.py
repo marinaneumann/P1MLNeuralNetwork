@@ -13,12 +13,13 @@ def main():
 
 
     dataLoad() #Load data from files
-    #build(X_train, Y_train, X_test, Y_test)     #build NN and run epochs
+    build(X_train, Y_train, X_test, Y_test)     #build NN and run epochs
 
 #Data data --> MNISET
 def dataLoad():
     global X_train, Y_train,  X_test, Y_test
 
+    #Code used to read in and create csv files.Becomes unnecessary after initial run.
     # X_test, Y_test = loadlocal_mnist(images_path='data/t10k-images-idx3-ubyte',labels_path='data/t10k-labels-idx1-ubyte')
     # np.savetxt(fname='data/testimages.csv',X=X_test, delimiter=',', fmt='%d')
     # np.savetxt(fname='data/testlabels.csv', X=Y_test, delimiter=',', fmt='%d')
@@ -70,11 +71,15 @@ def build(X_train, Y_train, X_test, Y_test):
 
     z = 0  #for iteration in epoch
     epoch = 50
-    #mnnet = NN()
+    N = input("How many hidden layers?")
+    M = input("What momentum? For default, enter 0.9")
+    mnnetTrain = NN()
+    mnnetTrain._init_(X_train, Y_train, N, M)
 
-    for z in range(epochs):
-        mnnet.propforward()
-        mnnet.backprop()
+    #for z in range(epochs):
+    mnnetTrain.propforward()
+        #mnnetTrain.backprop()5
+
         #Shuffle data before next epoch?
 
         #NEED TO DO SOMETHING WITH ACCURACY counting or something???
@@ -91,10 +96,11 @@ class NN:
         self.mom = M   #allowing for user to choose momentum, by default will be 0.9
         self.y = y  #labels from input for kth class
 
+
         self.weightsJI = np.random.uniform(-0.5,0.5)
         self.weightsKJ = np.random.uniform(-0.5,0.5)
-        self.bias1 =  np.zeros(self.inputs)
-        self.bias2 = np.zeros(self.numHidden)
+        self.bias1 =  np.ones(self.inputs)
+        self.bias2 = np.ones(self.numHidden)
 
 # Propogate input forward
     def propforward(self) :
@@ -103,7 +109,9 @@ class NN:
         z = np.dot(X_train, self.weightsJI) + self.bias1
         self.hiddenL = signoid(z)
         d = np.dot(self.hiddenL, self.weightsKJ) + self.bias2
-        self.outputs = softmax(d)
+        self.outputs = sigmoid(d)
+        print("HiddenLayers: ", self.hiddenL)
+        print("Outputs: ", self.outputs)
 
     def backprop(self):
         print("hi")
