@@ -39,49 +39,59 @@ def dataLoad():
 def sigmAct(s):
    return 1/(1+np.exp(-s))
 
-# Termination condition (epochs)
 def build(X_train, Y_train, X_test, Y_test):
     #X_train = train_test_split(X_train, shuffle=True)  # NEW DATASET HAS split training test data into 2  arrays
     #NEED to split data into smaller dataset & shuffle??
 
     z = 0  #for iteration in epoch
     epoch = 50
-    N = input("How many hidden layers?")
-    M = input("What momentum? For default, enter 0.9")
-    mnnetTrain = NN(X_train, Y_train, N, M)
+    mnnetTrain = NN(X_train, Y_train)
 
     #for z in range(epochs):
-    mnnetTrain.propforward()
+    mnnetTrain.propForward()
         #mnnetTrain.backprop()
 
         #Shuffle data before next epoch?
+        #permutation = np.random.permutation(X_train.shape[1])
+        #X_train_shuffle = X_train[:,permutation]
+        #Y_train_shuffle = Y_train[:,permutation)
 
+        #OR SHUFFLE LIKE THIS:
+        #m= 500 #number of data in training or testing?
+        #shuffle = np.random.permutation(m)
+        #X_train, Y_train = X_train[:,shuffle], Y_train[:, shuffle]
         #NEED TO DO SOMETHING WITH ACCURACY counting or something???
 
 class NN:
 
  #initalize all weights
-    def __init__(self,x, y, N, M):
+    def __init__(self,x,y):
         self.x = x  #input values from data
-        self.inputs = 784
-        self.numHidden = N #allowing for user to choose num hiddenL
-        self.outs = 10
+        self.y = y  # labels from input for kth class
+        numInputs = 784
+        numHidden = int(input("How many hidden layers?(ie. 50, 100, 150...etc. "))
+        M = float(input("What momentum? For a default choice please enter 0.9 :"))
+        outNum = 10
         self.lr = 0.1
         self.mom = M   #allowing for user to choose momentum, by default will be 0.9
-        self.y = y  #labels from input for kth class
-        inp_dim = x.shape[1]
-        out_dim = y.shape[0]
+        self.createMatrices(numInputs, numHidden, outNum)
 
-        self.weightsJI = np.random.uniform(-0.5,0.5, size =784)
-        self.weightsKJ = np.random.uniform(-0.5,0.5 ,size =50)
-        self.bias1 = np.ones((1,50))
-        self.bias2 = np.ones((1,10))
+    def createMatrices(self,numInputs, numHidden, outNum):
+        # inp_dim = x.shape[1]
+        # out_dim = y.shape[0]
 
-        self.deltaChangeK = np.zeros(784)
+        self.weightsJI = np.random.uniform(-0.5, 0.5, size=(numInputs, numHidden))
+        self.weightsKJ = np.random.uniform(-0.5, 0.5, size=(numHidden, outNum))
+        print("WeightsKJ:", self.weightsKJ)
+        print("WeightsJI:", self.weightsJI)
+        self.bias1 = np.ones((1, numHidden))  # might need to change biases??
+        self.bias2 = np.ones((1, outNum))
+
+        # self.deltaChangeK = np.zeros()
+        #
         self.deltaChangeJ = np.zeros(784)
-
 # Propogate input forward
-    def propforward(self) :
+    def propForward(self) :
         z = np.dot(X_train[0], self.weightsJI) + self.bias1
         self.hiddenL = sigmAct(z)
         d = np.dot(self.hiddenL, self.weightsKJ) + self.bias2
@@ -101,6 +111,7 @@ class NN:
         #
         # deltaChangeJ = (self.lr * deltaJ * self.inputs) +(self.mom *self.deltaChangeJ)
         # self.weightsJI = self.weightsJI + deltaChangeJ
+
 
 # Caluclate error
 def errorcalc(self, deltaK, deltaJ):
