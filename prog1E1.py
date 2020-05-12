@@ -1,4 +1,3 @@
-import random
 import numpy as np
 from mlxtend.data import loadlocal_mnist
 from sklearn.model_selection import train_test_split
@@ -49,8 +48,7 @@ def build(X_train, Y_train, X_test, Y_test):
     epoch = 50
     N = input("How many hidden layers?")
     M = input("What momentum? For default, enter 0.9")
-    mnnetTrain = NN()
-    mnnetTrain._init_(X_train, Y_train, N, M)
+    mnnetTrain = NN(X_train, Y_train, N, M)
 
     #for z in range(epochs):
     mnnetTrain.propforward()
@@ -63,7 +61,7 @@ def build(X_train, Y_train, X_test, Y_test):
 class NN:
 
  #initalize all weights
-    def _init_(self,x, y, N, M):
+    def __init__(self,x, y, N, M):
         self.x = x  #input values from data
         self.inputs = 784
         self.numHidden = N #allowing for user to choose num hiddenL
@@ -71,16 +69,20 @@ class NN:
         self.lr = 0.1
         self.mom = M   #allowing for user to choose momentum, by default will be 0.9
         self.y = y  #labels from input for kth class
-
+        inp_dim = x.shape[1]
+        out_dim = y.shape[0]
 
         self.weightsJI = np.random.uniform(-0.5,0.5, size =784)
         self.weightsKJ = np.random.uniform(-0.5,0.5 ,size =50)
-        self.bias1 = np.ones(1)
-        self.bias2 = np.ones(1)
+        self.bias1 = np.ones((1,50))
+        self.bias2 = np.ones((1,10))
+
+        self.deltaChangeK = np.zeros(784)
+        self.deltaChangeJ = np.zeros(784)
 
 # Propogate input forward
     def propforward(self) :
-        z = np.dot(X_train, self.weightsJI) + self.bias1
+        z = np.dot(X_train[0], self.weightsJI) + self.bias1
         self.hiddenL = sigmAct(z)
         d = np.dot(self.hiddenL, self.weightsKJ) + self.bias2
         self.outputs = sigmAct(d)
@@ -93,13 +95,11 @@ class NN:
         print("This is deltaK", deltaK)
         print("This is deltaJ", deltaJ)
         #update weights w/ momentum
-        #deltaChangeK = np.zeros(785?)
-        #deltaChangeJ = np.zeros(785?)
-        #Start them as zero, and them update each time so they do delta recent...
-        # deltaChangeK = (self.lr * delaK * self.hiddenL) + (self.mom *??? )
+
+        # deltaChangeK = (self.lr * delaK * self.hiddenL) + (self.mom *self.deltaChangeK)
         # self.weightsKJ = self.weightsLJ + deltaChangeK
         #
-        # deltaChangeJ = (self.lr * deltaJ * self.inputs) +(self.mom *???)
+        # deltaChangeJ = (self.lr * deltaJ * self.inputs) +(self.mom *self.deltaChangeJ)
         # self.weightsJI = self.weightsJI + deltaChangeJ
 
 # Caluclate error
