@@ -42,6 +42,7 @@ def sigmAct(s):
 def build(X_train, Y_train, X_test, Y_test):
     #X_train = train_test_split(X_train, shuffle=True)  # NEW DATASET HAS split training test data into 2  arrays
     #NEED to split data into smaller dataset & shuffle??
+    #Experiment 3 does 2 separate datasets anyway... hmmm
 
     z = 0  #for iteration in epoch
     epoch = 50
@@ -49,7 +50,7 @@ def build(X_train, Y_train, X_test, Y_test):
 
     #for z in range(epochs):
     mnnetTrain.propForward()
-        #mnnetTrain.backprop()
+    mnnetTrain.backprop()
 
         #Shuffle data before next epoch?
         #permutation = np.random.permutation(X_train.shape[1])
@@ -82,17 +83,16 @@ class NN:
 
         self.weightsJI = np.random.uniform(-0.5, 0.5, size=(numInputs, numHidden))
         self.weightsKJ = np.random.uniform(-0.5, 0.5, size=(numHidden, outNum))
-        print("WeightsKJ:", self.weightsKJ)
-        print("WeightsJI:", self.weightsJI)
         self.bias1 = np.ones((1, numHidden))  # might need to change biases??
         self.bias2 = np.ones((1, outNum))
-
+        print("Bias1:", self.bias1)
+        print("Bias2: ", self.bias2)
         # self.deltaChangeK = np.zeros()
-        #
-        self.deltaChangeJ = np.zeros(784)
+        #self.deltaChangeJ = np.zeros()
+
 # Propogate input forward
     def propForward(self) :
-        z = np.dot(X_train[0], self.weightsJI) + self.bias1
+        z = np.dot(self.x, self.weightsJI) + self.bias1
         self.hiddenL = sigmAct(z)
         d = np.dot(self.hiddenL, self.weightsKJ) + self.bias2
         self.outputs = sigmAct(d)
@@ -100,10 +100,9 @@ class NN:
         print("Outputs: ", self.outputs)
 
     def backprop(self):
-        deltaK, deltaJ = 0
-        deltaK, deltaJ = errorcalc(self,deltaK, deltaJ)
-        print("This is deltaK", deltaK)
-        print("This is deltaJ", deltaJ)
+        deltaK, deltaJ = self.errorcalc()
+        #print("This is deltaK", deltaK)
+        #print("This is deltaJ", deltaJ)
         #update weights w/ momentum
 
         # deltaChangeK = (self.lr * delaK * self.hiddenL) + (self.mom *self.deltaChangeK)
@@ -114,20 +113,33 @@ class NN:
 
 
 # Caluclate error
-def errorcalc(self, deltaK, deltaJ):
-    global tK
-    tK= []
-    #Figures out tK values depending on if input class is kth class or not.. don't think this is right
-    for i in self.outputs:
-        if self.outputs[i] == Y_train[i]:
-            tK = 0.9
-        else:
-            tK = 0.3
+    def errorcalc(self):
+        global tK
 
-    deltaK = self.outputs * (1- self.outputs)* (tK - self.outputs)
-    deltaJ = self.hiddenL * (1- self.hiddenL) * np.dot(self.weightsKJ, deltaK)
+        i = 0
+        # for i in self.outputs:
+        #     if self.outputs.index(i) == self.y.index(i):
+        #         tK[i] = 0.9
+        #     else:
+        #         tK[i] = 0.1
+        # outputs = np.array(self.outputs).astype(int)
+        # labels = np.array(self.y).astype(int)
+        # for i in outputs:
+        #     if outputs[i] == labels[i]:
+        #         tK[i] = 0.9
+        #     else:
+        #         tK[i] = 0.1
+        #Figures out tK values depending on if input class is kth class or not.. don't think this is right
+        #for i in self.outputs:
+            #if self.outputs == self.y:
+                #tK[i] = 0.9
+            #else:
+                #tK[i] = 0.1
 
-    return deltaK, deltaJ
+        deltaK = self.outputs * (1- self.outputs)* (tK - self.outputs)
+        deltaJ = self.hiddenL * (1- self.hiddenL) * np.dot(self.weightsKJ, deltaK)
+
+        return deltaK, deltaJ
 
 
 main()
