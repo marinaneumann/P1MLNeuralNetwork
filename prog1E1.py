@@ -2,7 +2,7 @@ import numpy as np
 from mlxtend.data import loadlocal_mnist
 from sklearn.model_selection import train_test_split
 # visualization tools
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 def main():
     print("Neural Network For MNISET data")
@@ -12,7 +12,7 @@ def main():
 
 
     dataLoad() #Load data from files
-    build(X_train, Y_train, X_test, Y_test)     #build NN and run epochs
+    #build(X_train, Y_train, X_test, Y_test)     #build NN and run epochs
 
 #Data data --> MNISET
 def dataLoad():
