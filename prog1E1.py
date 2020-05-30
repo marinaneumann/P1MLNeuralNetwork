@@ -49,9 +49,12 @@ def build(X_train, Y_train, X_test, Y_test):
     mnnetTrain = NN(X_train, Y_train)
 
     #for z in range(epochs):
-    for z in range(0,1):
-        mnnetTrain.propForward()
-        #mnnetTrain.backprop()
+    for z in range(0,1): #For the epoch...
+        #index = 0
+        # for i in len(1):  #For the 60K data
+
+        mnnetTrain.propForward(0)
+        mnnetTrain.backprop(0)
 
         #Shuffle data before next epoch?
         #permutation = np.random.permutation(X_train.shape[1])
@@ -96,28 +99,21 @@ class NN:
         self.deltChangeJ = np.zeros(len(self.weightsJI))
 
 # Propogate input forward
-    def propForward(self) :
+    def propForward(self,i) :
         global tK
         #tK = np.zeros(10, dtype=float)
-        tK = [[0.1 for j in range(10)] for i in range(len(self.y))]
-        #print("The target values before assignment:", tK)
-        index = 0
-        for z in tK:
-            z[self.y[index]] = 0.9
-            #print(z)
-            index +=1
+       # tK = [[0.1 for j in range(10)] for i in range(len(self.y))]
+        tK = [0.1 for j in range(10)]
+        tK[self.y[i]] = 0.9
 
-
-
-
-        z = np.dot(self.x, self.weightsJI) + self.bias1
+        z = np.dot(self.x[i], self.weightsJI) + self.bias1
         self.hiddenL = sigmAct(z)
         d = np.dot(self.hiddenL, self.weightsKJ) + self.bias2
         self.outputs = sigmAct(d)
-        # print("HiddenLayers: ", self.hiddenL)
-        # print("Outputs: ", self.outputs)
+        print("HiddenLayers: ", self.hiddenL)
+        print("Outputs: ", self.outputs)
 
-    def backprop(self):
+    def backprop(self,i ):
         deltaK, deltaJ = self.errorcalc()
         print("This is deltaK", deltaK)
         print("This is deltaJ", deltaJ)
@@ -126,16 +122,19 @@ class NN:
         deltaChangeK = (self.lr * deltaK * self.hiddenL) + (self.mom *self.deltaChangeK)
         self.weightsKJ = self.weightsLJ + deltaChangeK
 
-        deltaChangeJ = (self.lr * deltaJ * self.inputs) +(self.mom *self.deltaChangeJ)
+        deltaChangeJ = (self.lr * deltaJ * self.x[i]) +(self.mom *self.deltaChangeJ)
         self.weightsJI = self.weightsJI + deltaChangeJ
 
 
 # Caluclate error
     def errorcalc(self):
-
+        # Either need to be using numpy.dot ORR the outputs.T aspect of things???
+        # ALMOST THERE!!!!
         deltaK = self.outputs * (1- self.outputs)* (tK - self.outputs)
+        print(deltaK)
+        print("This is the length of deltaK,", len(deltaK))
         deltaJ = self.hiddenL * (1- self.hiddenL) * np.dot(self.weightsKJ, deltaK)
-
+        print(deltaJ)
         return deltaK, deltaJ
 
     def accuracyTesting(self):
