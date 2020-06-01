@@ -47,14 +47,20 @@ def build(X_train, Y_train, X_test, Y_test):
     z = 0  #for iteration in epoch
     epoch = 50
     mnnetTrain = NN(X_train, Y_train)
-
+    global accuracy
+    accuracy = []
     #for z in range(epochs):
     for z in range(0,1): #For the epoch...
+        global acc
+        acc = 0
         #index = 0
         # for i in len(1):  #For the 60K data
 
         mnnetTrain.propForward(0)
         mnnetTrain.backprop(0)
+
+        acc / len(X_train)
+        accuracy.append(acc)
 
         #Shuffle data before next epoch?
         #permutation = np.random.permutation(X_train.shape[1])
@@ -65,7 +71,7 @@ def build(X_train, Y_train, X_test, Y_test):
         #m= 500 #number of data in training or testing?
         #shuffle = np.random.permutation(m)
         #X_train, Y_train = X_train[:,shuffle], Y_train[:, shuffle]
-        #NEED TO DO SOMETHING WITH ACCURACY counting or something???
+
 
 class NN:
 
@@ -96,7 +102,7 @@ class NN:
         # print("Bias2: ", self.bias2)
 
         self.deltaChangeK = np.zeros(len(self.weightsKJ))
-        self.deltChangeJ = np.zeros(len(self.weightsJI))
+        self.deltaChangeJ = np.zeros(len(self.weightsJI))
 
 # Propogate input forward
     def propForward(self,i) :
@@ -110,38 +116,49 @@ class NN:
         self.hiddenL = sigmAct(z)
         d = np.dot(self.hiddenL, self.weightsKJ) + self.bias2
         self.outputs = sigmAct(d)
-        print("HiddenLayers: ", self.hiddenL)
-        print("Outputs: ", self.outputs)
+        # print("HiddenLayers: ", self.hiddenL)
+        # print("Outputs: ", self.outputs)
 
     def backprop(self,i ):
         deltaK, deltaJ = self.errorcalc()
-        print("This is deltaK", deltaK)
-        print("This is deltaJ", deltaJ)
+        # print("This is deltaK", deltaK)
+        # print("This is deltaJ", deltaJ)
         #update weights w/ momentum
 
-        deltaChangeK = (self.lr * deltaK * self.hiddenL) + (self.mom *self.deltaChangeK)
-        self.weightsKJ = self.weightsLJ + deltaChangeK
+        self.deltaChangeK = (self.lr * deltaK * self.hiddenL) + (self.mom *self.deltaChangeK)
+        self.weightsKJ = self.weightsKJ + self.deltaChangeK.T
+        #print(self.weightsKJ)
 
-        deltaChangeJ = (self.lr * deltaJ * self.x[i]) +(self.mom *self.deltaChangeJ)
-        self.weightsJI = self.weightsJI + deltaChangeJ
+        self.deltaChangeJ = (self.lr * deltaJ * self.x[i]) +(self.mom *self.deltaChangeJ)
+        self.weightsJI = self.weightsJI + self.deltaChangeJ.T
+        #print(self.weightsJI)
+
 
 
 # Caluclate error
     def errorcalc(self):
         # Either need to be using numpy.dot ORR the outputs.T aspect of things???
         # ALMOST THERE!!!!
-        deltaK = self.outputs * (1- self.outputs)* (tK - self.outputs)
-        print(deltaK)
-        print("This is the length of deltaK,", len(deltaK))
-        deltaJ = self.hiddenL * (1- self.hiddenL) * np.dot(self.weightsKJ, deltaK)
-        print(deltaJ)
+        accuracyTest = np.subtract(tK , self.outputs)
+        for i in accuracyTest:
+            print(i)
+            if i == 0:
+               acc += 1
+
+
+
+        dK = (1- self.outputs)*(tK - self.outputs)
+        deltaK = np.dot(self.outputs, dK.T)
+
+        dJ = (1-self.hiddenL) * np.sum(self.weightsKJ.T * deltaK)
+        deltaJ = np.dot(self.hiddenL, dJ.T)
         return deltaK, deltaJ
 
-    def accuracyTesting(self):
-        count = 0
-        for i in self.outputs:
-            if i == self.y:
-                count +=1
+    # def accuracyTesting(self):
+    #     count = 0
+    #     for i in self.outputs:
+    #         if i == self.y:
+    #             count +=1
 
         return (count/len(self.x))*100
 main()
