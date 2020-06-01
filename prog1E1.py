@@ -73,7 +73,7 @@ def build(X_train, Y_train, X_test, Y_test):
     for z in range(epochs):
         acc2 = 0
         print("Epoch for testing:", z)
-        acc2 = mnnetTrain.accuracy(X_test, X_train)
+        acc2 = mnnetTrain.accuracy(X_test,Y_test)
         print("Accuracy for this epoch", acc2)
         accuracyTest.append(acc2)
 
