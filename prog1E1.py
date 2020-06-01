@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.metrics import confusion_matrix, plot_confusion_matrix
 from mlxtend.data import loadlocal_mnist
 from sklearn.model_selection import train_test_split
 # visualization tools
@@ -45,23 +46,45 @@ def build(X_train, Y_train, X_test, Y_test):
     #Experiment 3 does 2 separate datasets anyway... hmmm
 
     z = 0  #for iteration in epoch
-    epoch = 50
+    epochs = 50
     mnnetTrain = NN(X_train, Y_train)
     global accuracy
-    accuracy = []
-    #for z in range(epochs):
-    for z in range(0,1): #For the epoch...
+    accuracyTrain = []
+    for z in range(epochs):
+    #for z in range(0,1): #For the epoch...
         global acc
         acc = 0
-        #index = 0
-        # for i in len(1):  #For the 60K data
+        dindex = 0
+        print("Epoch:", z)
+        #for i in range(len(X_train)):  #For the 60K data
+        for i in X_train:
+            #print("Data #:", i)
+            mnnetTrain.propForward(i,  dindex)
+            mnnetTrain.backprop(i)
+            dindex +=1
 
-        mnnetTrain.propForward(0)
-        mnnetTrain.backprop(0)
 
-        acc / len(X_train)
-        accuracy.append(acc)
+        acc = mnnetTrain.accuracy(X_train, Y_train)
+        print("Accuracy for this epoch:", acc)
+        accuracyTrain.append(acc)
 
+    #acc2 =0
+    accuracyTest = []
+    for z in range(epochs):
+        acc2 = 0
+        print("Epoch for testing:", z)
+        acc2 = mnnetTrain.accuracy(X_test, X_train)
+        print("Accuracy for this epoch", acc2)
+        accuracyTest.append(acc2)
+
+
+
+
+    # print(predictions)
+    # print(Y_train)
+    # cm = confusion_matrix(Y_train,predictions)
+    # print("Confusion Matrix:")
+    # print(cm)
         #Shuffle data before next epoch?
         #permutation = np.random.permutation(X_train.shape[1])
         #X_train_shuffle = X_train[:,permutation]
@@ -87,16 +110,14 @@ class NN:
         self.mom = M   #allowing for user to choose momentum, by default will be 0.9
         self.createMatrices(numInputs, numHidden, outNum)
 
-        # self.deltaChangeK = np.ones()
-        # self.deltChangeJ = np.ones()
+
 
     def createMatrices(self,numInputs, numHidden, outNum):
-        # inp_dim = x.shape[1]
-        # out_dim = y.shape[0]
+
 
         self.weightsJI = np.random.uniform(-0.5, 0.5, size=(numInputs, numHidden))
         self.weightsKJ = np.random.uniform(-0.5, 0.5, size=(numHidden, outNum))
-        self.bias1 = np.ones((1, numHidden))  # might need to change biases??
+        self.bias1 = np.ones((1, numHidden))
         self.bias2 = np.ones((1, outNum))
         # print("Bias1:", self.bias1)
         # print("Bias2: ", self.bias2)
@@ -105,21 +126,21 @@ class NN:
         self.deltaChangeJ = np.zeros(len(self.weightsJI))
 
 # Propogate input forward
-    def propForward(self,i) :
+    def propForward(self,data, dataindex) :
         global tK
-        #tK = np.zeros(10, dtype=float)
-       # tK = [[0.1 for j in range(10)] for i in range(len(self.y))]
-        tK = [0.1 for j in range(10)]
-        tK[self.y[i]] = 0.9
 
-        z = np.dot(self.x[i], self.weightsJI) + self.bias1
+        tK = [0.1 for j in range(10)]
+        tK[self.y[dataindex]] = 0.9
+
+        z = np.dot(data, self.weightsJI) + self.bias1
         self.hiddenL = sigmAct(z)
         d = np.dot(self.hiddenL, self.weightsKJ) + self.bias2
         self.outputs = sigmAct(d)
+        return self.outputs
         # print("HiddenLayers: ", self.hiddenL)
         # print("Outputs: ", self.outputs)
 
-    def backprop(self,i ):
+    def backprop(self,data ):
         deltaK, deltaJ = self.errorcalc()
         # print("This is deltaK", deltaK)
         # print("This is deltaJ", deltaJ)
@@ -129,23 +150,25 @@ class NN:
         self.weightsKJ = self.weightsKJ + self.deltaChangeK.T
         #print(self.weightsKJ)
 
-        self.deltaChangeJ = (self.lr * deltaJ * self.x[i]) +(self.mom *self.deltaChangeJ)
+        self.deltaChangeJ = (self.lr * deltaJ * data) +(self.mom *self.deltaChangeJ)
         self.weightsJI = self.weightsJI + self.deltaChangeJ.T
-        #print(self.weightsJI)
+        # print(self.weightsJI)
 
+    def accuracy(self, dataX, dataY):
+        #global predictions
+        predictions = []
+        index = 0
+        for xx, yy in zip(dataX, dataY):
 
+            out = self.propForward(xx,index)
+            pred = np.argmax(out)
+            predictions.append(pred==yy)
+            index += 1
+        summed = sum(pred for pred in predictions)/100
+        return np.average(summed)
 
 # Caluclate error
     def errorcalc(self):
-        # Either need to be using numpy.dot ORR the outputs.T aspect of things???
-        # ALMOST THERE!!!!
-        accuracyTest = np.subtract(tK , self.outputs)
-        for i in accuracyTest:
-            print(i)
-            if i == 0:
-               acc += 1
-
-
 
         dK = (1- self.outputs)*(tK - self.outputs)
         deltaK = np.dot(self.outputs, dK.T)
@@ -154,11 +177,5 @@ class NN:
         deltaJ = np.dot(self.hiddenL, dJ.T)
         return deltaK, deltaJ
 
-    # def accuracyTesting(self):
-    #     count = 0
-    #     for i in self.outputs:
-    #         if i == self.y:
-    #             count +=1
 
-        return (count/len(self.x))*100
 main()
