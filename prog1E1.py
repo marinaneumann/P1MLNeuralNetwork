@@ -125,6 +125,8 @@ class NN:
 
         self.deltaChangeK = np.zeros(len(self.weightsKJ))
         self.deltaChangeJ = np.zeros(len(self.weightsJI))
+        # self.deltaChangeK = 0
+        # self.deltaChangeJ = 0
 
 # Propogate input forward
     def propForward(self,dataindex) :
@@ -154,14 +156,22 @@ class NN:
         # print("This is deltaK", deltaK)
         # print("This is deltaJ", deltaJ)
         #update weights w/ momentum
-
+        print("This is deltaChangeK:", self.deltaChangeK)
         self.deltaChangeK = (self.lr * deltaK * self.hiddenL) + (self.mom *self.deltaChangeK)
+        print("This is deltaChangeK:", self.deltaChangeK)
         self.weightsKJ = self.weightsKJ + self.deltaChangeK.T
-        #print(self.weightsKJ)
-
+        print("\n")
+        print("\n")
+        print("THese are new weights from K to J:", self.weightsKJ)
+        print("\n")
+        print("\n")
+        print("This id deltaChangeJ:", self.deltaChangeJ)
         self.deltaChangeJ = (self.lr * deltaJ * self.x[dataindex]) +(self.mom *self.deltaChangeJ)
+        print("This id deltaChangeJ:", self.deltaChangeJ)
         self.weightsJI = self.weightsJI + self.deltaChangeJ.T
-        # print(self.weightsJI)
+        print("\n")
+        print("\n")
+        print("These are the new weights from J to I:",  self.weightsJI)
 
     def accuracy(self):
         global predictions
@@ -204,7 +214,7 @@ class NN:
         dK = (1- self.outputs)*(tK - self.outputs)
         deltaK = np.dot(self.outputs, dK.T)
         print("This is deltaK:",deltaK)
-        dJ = (1-self.hiddenL) * np.sum(self.weightsKJ.T * deltaK)
+        dJ = (1-self.hiddenL) * np.sum(self.weightsKJ *deltaK.T)
         deltaJ = np.dot(self.hiddenL, dJ.T)
         print("This is deltaJ:", deltaJ)
         return deltaK, deltaJ
