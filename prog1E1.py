@@ -57,28 +57,30 @@ def build(X_train, Y_train, X_test, Y_test):
         dindex = 0
         print("Epoch:", z)
         #for i in range(len(X_train)):  #For the 60K data
-        for i in X_train:
-            #print("Data #:", i)
-            mnnetTrain.propForward(i,  dindex)
-            mnnetTrain.backprop(i)
+        for i in range(len(X_train)):
+            mnnetTrain.propForward(dindex)
+            mnnetTrain.backprop( dindex)
             dindex +=1
 
 
-        acc = mnnetTrain.accuracy(X_train, Y_train)
-        print("Accuracy for this epoch:", acc)
-        accuracyTrain.append(acc)
+        # acc = mnnetTrain.accuracy(X_train, Y_train)
+        # # correct, wrong = mnnetTrain.accuracy(X_train, Y_train)
+        # # acc = (correct / (correct + wrong))*100
+        # print("Accuracy for this epoch:", acc)
+        # accuracyTrain.append(acc)
 
-    #acc2 =0
-    accuracyTest = []
-    for z in range(epochs):
-        acc2 = 0
-        print("Epoch for testing:", z)
-        acc2 = mnnetTrain.accuracy(X_test,Y_test)
-        print("Accuracy for this epoch", acc2)
-        accuracyTest.append(acc2)
-
-
-
+    # acc2 =0
+    #
+    # accuracyTest = []
+    # for z in range(epochs):
+    #     acc2 = 0
+    #     print("Epoch for testing:", z)
+    #     acc2 = mnnetTrain.accuracy(X_test,Y_test)
+    #
+    #     # correct, wrong = mnnetTrain.accuracy(X_test, Y_test)
+    #     # acc2 = (correct/(correct +wrong))*100
+    #     print("Accuracy for this epoch", acc2)
+    #     accuracyTest.append(acc2)
 
     # print(predictions)
     # print(Y_train)
@@ -110,11 +112,7 @@ class NN:
         self.mom = M   #allowing for user to choose momentum, by default will be 0.9
         self.createMatrices(numInputs, numHidden, outNum)
 
-
-
     def createMatrices(self,numInputs, numHidden, outNum):
-
-
         self.weightsJI = np.random.uniform(-0.5, 0.5, size=(numInputs, numHidden))
         self.weightsKJ = np.random.uniform(-0.5, 0.5, size=(numHidden, outNum))
         self.bias1 = np.ones((1, numHidden))
@@ -126,21 +124,22 @@ class NN:
         self.deltaChangeJ = np.zeros(len(self.weightsJI))
 
 # Propogate input forward
-    def propForward(self,data, dataindex) :
+    def propForward(self,dataindex) :
         global tK
 
         tK = [0.1 for j in range(10)]
         tK[self.y[dataindex]] = 0.9
-
-        z = np.dot(data, self.weightsJI) + self.bias1
+        print("Target values are:", tK)
+        z = np.dot(self.x[dataindex], self.weightsJI) + self.bias1
         self.hiddenL = sigmAct(z)
         d = np.dot(self.hiddenL, self.weightsKJ) + self.bias2
         self.outputs = sigmAct(d)
+        print("The outputs for this data are:", self.outputs)
         return self.outputs
         # print("HiddenLayers: ", self.hiddenL)
         # print("Outputs: ", self.outputs)
 
-    def backprop(self,data ):
+    def backprop(self, dataindex ):
         deltaK, deltaJ = self.errorcalc()
         # print("This is deltaK", deltaK)
         # print("This is deltaJ", deltaJ)
@@ -150,22 +149,39 @@ class NN:
         self.weightsKJ = self.weightsKJ + self.deltaChangeK.T
         #print(self.weightsKJ)
 
-        self.deltaChangeJ = (self.lr * deltaJ * data) +(self.mom *self.deltaChangeJ)
+        self.deltaChangeJ = (self.lr * deltaJ * self.x[dataindex]) +(self.mom *self.deltaChangeJ)
         self.weightsJI = self.weightsJI + self.deltaChangeJ.T
         # print(self.weightsJI)
 
-    def accuracy(self, dataX, dataY):
-        #global predictions
+    def accuracy(self):
+        global predictions
         predictions = []
         index = 0
-        for xx, yy in zip(dataX, dataY):
-
-            out = self.propForward(xx,index)
+        #for xx, yy in zip(dataX, dataY):
+        for x in range(len(self.x)):
+            out = self.propForward(self.x[x],index)
+            print("Accuracy output:", out)
             pred = np.argmax(out)
-            predictions.append(pred==yy)
+            print("Accuracy prediction from argmax of output:", pred)
+            print("Expected output:", self.y[x])
+            predictions.append(pred==self.y[x])
+
             index += 1
         summed = sum(pred for pred in predictions)/100
+        print("Sum of predictions:", summed)
         return np.average(summed)
+        # correct, wrong = 0, 0
+        # for i in range(len(dataX)):
+        #     res = self.propForward(dataX[i],i)
+        #     res_max = res.argmax()
+        #     if res_max == dataY[i]:
+        #         correct += 1
+        #     else:
+        #         wrong += 1
+        # print("Number of correct:", correct)
+        # print("Number of wrong:", wrong)
+        # return correct, wrong
+
 
 # Caluclate error
     def errorcalc(self):
