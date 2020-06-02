@@ -2,8 +2,8 @@ import numpy as np
 from sklearn.metrics import confusion_matrix, plot_confusion_matrix
 from mlxtend.data import loadlocal_mnist
 from sklearn.model_selection import train_test_split
-# visualization tools
-#import matplotlib.pyplot as plt
+
+
 
 def main():
     print("Neural Network For MNISET data")
@@ -37,8 +37,7 @@ def dataLoad():
     X_test = M/255.0
     Y_test = N
 
-def sigmAct(s):
-   return 1/(1+np.exp(-s))
+
 
 def build(X_train, Y_train, X_test, Y_test):
     #X_train = train_test_split(X_train, shuffle=True)  # NEW DATASET HAS split training test data into 2  arrays
@@ -58,14 +57,18 @@ def build(X_train, Y_train, X_test, Y_test):
         print("Epoch:", z)
         #for i in range(len(X_train)):  #For the 60K data
         for i in range(len(X_train)):
-            mnnetTrain.propForward(dindex)
-            mnnetTrain.backprop( dindex)
-            dindex +=1
+            #print("Data:", i)
+            mnnetTrain.propForward(i)
+            mnnetTrain.backprop(i)
+            if i == 1:
+                break
+            #dindex +=1
 
-
-        # acc = mnnetTrain.accuracy(X_train, Y_train)
-        # # correct, wrong = mnnetTrain.accuracy(X_train, Y_train)
-        # # acc = (correct / (correct + wrong))*100
+        if z== 0:
+            break
+        # acc = mnnetTrain.accuracy()
+        # # # correct, wrong = mnnetTrain.accuracy(X_train, Y_train)
+        # #acc = (correct / (correct + wrong))*100
         # print("Accuracy for this epoch:", acc)
         # accuracyTrain.append(acc)
 
@@ -126,18 +129,25 @@ class NN:
 # Propogate input forward
     def propForward(self,dataindex) :
         global tK
-
         tK = [0.1 for j in range(10)]
         tK[self.y[dataindex]] = 0.9
-        print("Target values are:", tK)
-        z = np.dot(self.x[dataindex], self.weightsJI) + self.bias1
-        self.hiddenL = sigmAct(z)
-        d = np.dot(self.hiddenL, self.weightsKJ) + self.bias2
-        self.outputs = sigmAct(d)
-        print("The outputs for this data are:", self.outputs)
+        z, d = 0,0
+        z = np.dot(self.x[dataindex], self.weightsJI)
+        print(z)
+        z = z + self.bias1
+        print("Value before entering activation:", z)
+        self.hiddenL = self.sigmAct(z)
+        print("HiddenLayers: ", self.hiddenL)
+        d = np.dot(self.hiddenL, self.weightsKJ)
+        print(d)
+        d = d + self.bias2
+        print(d)
+
+        self.outputs = self.sigmAct(d)
+        #print("HiddenLayers: ", self.hiddenL)
+        print("Outputs: ", self.outputs)
         return self.outputs
-        # print("HiddenLayers: ", self.hiddenL)
-        # print("Outputs: ", self.outputs)
+
 
     def backprop(self, dataindex ):
         deltaK, deltaJ = self.errorcalc()
@@ -159,7 +169,7 @@ class NN:
         index = 0
         #for xx, yy in zip(dataX, dataY):
         for x in range(len(self.x)):
-            out = self.propForward(self.x[x],index)
+            out = self.propForward(x)
             print("Accuracy output:", out)
             pred = np.argmax(out)
             print("Accuracy prediction from argmax of output:", pred)
@@ -183,14 +193,20 @@ class NN:
         # return correct, wrong
 
 
+    def sigmAct(self,s):
+        print("Value of s:", s)
+        s = 1 / (1 + np.exp(-s))
+        print("New value of s:", s)
+        return s
 # Caluclate error
     def errorcalc(self):
 
         dK = (1- self.outputs)*(tK - self.outputs)
         deltaK = np.dot(self.outputs, dK.T)
-
+        print("This is deltaK:",deltaK)
         dJ = (1-self.hiddenL) * np.sum(self.weightsKJ.T * deltaK)
         deltaJ = np.dot(self.hiddenL, dJ.T)
+        print("This is deltaJ:", deltaJ)
         return deltaK, deltaJ
 
 
